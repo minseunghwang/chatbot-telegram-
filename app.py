@@ -1,5 +1,8 @@
 from flask import Flask
 import random
+import Lotto
+import requests
+
 
 app = Flask(__name__)
 
@@ -32,9 +35,18 @@ def menu():
 
 @app.route('/lotto')
 def lotto():
+    url = 'https://dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=873'
+    response = requests.get(url)
+    res_dict = response.json()     # 이 결과물이 파이썬 딕셔너리로 나오게 되요(string형태였던게 )
+
+    result = []
+    for i in range(1,7):
+        result.append(res_dict[f'drwtNo{i}'])
+
     winner =[3,5,12,13,33,39]
-    result = sorted(random.sample(range(1,46),6))
+    # result = sorted(random.sample(range(1,46),6))
  
+    # cnt = len(set(winner) & set(result))
     cnt = len(set(winner) & set(result))
 
     rank = '꽝'
@@ -47,7 +59,6 @@ def lotto():
     elif cnt == 3:
         rank = '5등'
 
-
     # 만약 6개가 모두 일치하면
     # -> 1등
     # 만약 5개가 일치하면
@@ -56,9 +67,6 @@ def lotto():
     # -> 4등
     # 만약 3개가 일치하면
     # -> 5등
-
     
-    return str(result) + str(winner) + rank + str(cnt)
-
-if __name__ == '__main__':
-    app.run(debug = True)
+    # return str(result) + str(winner) + rank + str(cnt)
+    return rank
